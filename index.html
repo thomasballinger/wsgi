@@ -1,0 +1,92 @@
+<DOCTYPE lang="html">
+<html>
+<head>
+</head>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+<style type="text/css">
+.posts{float:right;}
+</style>
+<body>
+<h1>Create Blog Post</h1>
+<div>
+<form name="blog_post" id="blog_post"/>
+	<label>Name: </label><input name="name" id="name" type="text"/><br>
+	<label>Body: </label><textarea name="body" id="body" rows="4" cols="50"></textarea><br>
+	<input class="submit" name="create" id="create" type="button" value="Create Post"/>
+</form>
+</div>
+<div class="posts">
+	<label>Posts</label>
+	<div class="post-links">
+	</div>
+</div>
+<script type="text/javascript">
+	$(document).ready(function(){
+
+		display_post_links();
+
+		function display_post_links()
+		{
+			$.ajax({
+				url:'display_post_links',
+				type:'post',
+				success: function(msg, textStatus){
+								var obj = jQuery.parseJSON(msg);
+								var markup ='';
+								/*jQuery.each(obj, function() {
+	      							alert(this);
+	   							});*/
+
+	   							/*jQuery.each(obj, function(i, val) {
+	   								alert(val);
+
+	    						});*/	
+								if(obj!=0){
+									$.each( obj, function(i, l){
+										if(i<obj.length-1)
+											markup += "<a href='/id/"+l[0]+"'>"+l[1]+"</a><br>";
+										else
+											markup += "<a href='/id/"+l[0]+"'>"+l[1]+"</a>";
+			 						});
+			 						$('.post-links').html(markup);
+								}
+				},
+				error: function(errorThrown){
+					alert(errorThrown);
+				}
+			});
+		}
+
+		function clear_form(){
+			    var allInputs = $(":input");
+			  	
+			  	$.each(allInputs, function(){
+			  		if(this.type=='text' || this.type=='textarea'){
+			  			$(this).val('');
+			  		}
+			  	});
+		}
+
+		$(".submit").click(function() {
+			var name = $('#name').val();
+			var body = $('#body').val();
+
+			$.ajax({
+				url: 'create',
+				type: 'post',
+				//dataType: "json",
+				data: 'name='+name+'&body='+body,
+				success: function(msg, textStatus){
+					alert(msg);
+					display_post_links();
+					clear_form();
+
+				},
+				error: function(jqXHR, textStatus, errorThrown){
+					alert(errorThrown);
+				}
+			});
+		});
+	});
+</script>
+</body>
