@@ -3,8 +3,10 @@ import string
 import json
 import urlparse
 
-#TODO: create function for wrting and reading to a file
-
+def new_post(environ):
+    v = View()
+    v.new_post(environ)
+    
 class View:
     header = 'This is the default header.'
     content = 'This is the content. Currently it\'s coming from the standard input.'
@@ -19,8 +21,6 @@ class View:
         return read_data
 
     def new_post(self, environ):
-        #TODO: this doesn't actually need the self keyword anymore since it's been removed from the class attribute list, right?
-        print View.db_counter
         self.view_attributes = []
 
         try:
@@ -35,11 +35,6 @@ class View:
         name = d.get('name')[0]
         body = d.get('body')[0]
 
-        #grab counter value...essentially the poor man's version of a primary key in a database.
-        #with open('database/db_counter.txt', 'r') as f:
-         #   read_data = f.read()
-
-            #db_counter = int(read_data)
 
         #TODO:traverse "d" for parsed input and append view_attributes
         self.view_attributes.append(View.db_counter)
@@ -52,9 +47,6 @@ class View:
             writer.writerow(self.view_attributes)
         
         View.db_counter+=1
-        print View.db_counter
-        #with open('database/db_counter.txt', 'w') as f:
-         #   f.write(str(db_counter))
 
         response = "Post Saved!"
         return response
@@ -107,30 +99,3 @@ class View:
             response = "0"#no posts available
 
         return response
-
-
-
-
-        """def parse_user_input(self):
-
-        with open('database/db_counter.txt', 'r') as f:
-            read_data = f.read()
-            f.closed
-            db_counter = int(read_data)
-
-        self.view_attributes.append(db_counter)
-        self.view_attributes.append(raw_input("Enter post name:"))
-        self.view_attributes.append(raw_input("Enter blog body:"))
-
-        with open('database/pseudo_database.csv', 'ab') as f:
-            writer = csv.writer(f)
-
-            writer.writerow(self.view_attributes)
-            f.closed
-        
-        db_counter+=1
-        with open('database/db_counter.txt', 'w') as f:
-            f.write(str(db_counter))
-            f.closed"""
-
-        
