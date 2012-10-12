@@ -4,15 +4,32 @@
 </head>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 <style type="text/css">
+body { font-family: sans-serif; background: #eee; }
+a, h1, h2 { color: #377BA8; }
+h1, h2 { font-family: 'Georgia', serif; margin: 0; }
+h1 { border-bottom: 2px solid #eee; }
+h2 { font-size: 1.2em; }
+
+.page { margin: 2em auto; width: 35em; border: 5px solid #ccc;
+                  padding: 0.8em; background: white; }
 .posts{float:right;}
+
+/*#blog_post label{padding: 5px;}*/
 </style>
 <body>
-<h1>Create Blog Post</h1>
-<div>
-<form name="blog_post" id="blog_post"/>
+<div class="page">
+<h1>Blog Posts</h1>
+<!--form name="blog_post" id="blog_post"/>
 	<label>Name: </label><input name="name" id="name" type="text"/><br>
 	<label>Body: </label><textarea name="body" id="body" rows="4" cols="50"></textarea><br>
 	<input class="submit" name="create" id="create" type="button" value="Create Post"/>
+</form-->
+<form name="blog_post" id="blog_post" class="add-entry">
+     <dl>
+        <dt>Title:</dt><dd><input name="name" size="30" type="text"></dd>
+        <dt>Text:</dt><dd><textarea name="body" id="body" rows="5" cols="40"></textarea></dd>
+        <dd><input class="submit" value="Create Post" type="button"></dd>
+    </dl>
 </form>
 </div>
 <div class="posts">
