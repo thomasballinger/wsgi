@@ -18,11 +18,11 @@ def blog_wsgi_app(environ, start_response):
     elif path.find('/id/')!=-1:
         parsed_path = path.split("/")
 
-        try:
-            post_id = int(parsed_path[2]) #obtain ID for clicked post, should be second item of path. if no error is thrown then it can be converted to an int and is therefore a string.
-            output = view.display_post(str(post_id))
-        except(ValueError):
-            output = '404 Error'
+        #try:
+        post_id = int(parsed_path[2]) #obtain ID for clicked post, should be second item of path. if no error is thrown then it can be converted to an int and is therefore a string.
+        output = view.display_post(str(post_id))
+        #except(ValueError):
+            #output = '404 Error'
     elif path == '/':
         output = view.render_main(environ)
     else:
