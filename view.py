@@ -1,6 +1,7 @@
 import csv
 import json
 import urlparse
+import re
 
 header = 'This is the default header.'
 content = 'This is the content. Currently it\'s coming from the standard input.'
@@ -49,8 +50,13 @@ def render(template, **kwargs):
     with open(template, 'r') as f:
         read_data = f.read()
 
-    read_data = read_data.replace("'+header+'", kwargs['header'])
-    read_data = read_data.replace("'+content+'", kwargs['content'])
+    # an attempt at preventing recursive replacement (still possible if one is creative)
+    for textglob in kwargs.values():
+        if re.search(r"'[+].*[+]'", textglob):
+            raise ValueError("Template text cannot have '+anything+' in it")
+
+    for key, replacement in kwargs.iteritems():
+        read_data = re.sub("'[+]"+key+"[+]'", replacement, read_data)
 
     return read_data
 

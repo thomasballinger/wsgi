@@ -1,6 +1,7 @@
 <!--default template-->
 <!--what variables are expected within the default_view view?
 a header, and content-->
+<!--but anything of the form '+variable+' is allowed-->
 
 <DOCTYPE lang="html">
 <html>
