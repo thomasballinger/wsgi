@@ -12,11 +12,11 @@ def blog_wsgi_app(environ, start_response):
     #output = getOutput(URL_routing[path])
     
     if path == '/create':
-    	output = blog_post.new_post(environ)
+        output = blog_post.new_post(environ)
     elif path == '/display_post_links':
         #method = URL_routing[path]
         #output = blog_post.method
-    	output = blog_post.display_post_links()
+        output = blog_post.display_post_links()
     elif path.find('/id/')!=-1:
         parsed_path = path.split("/")
 
@@ -26,9 +26,9 @@ def blog_wsgi_app(environ, start_response):
         except(ValueError):
             output = '404 Error'
     elif path == '/':
-    	output = blog_post.render_main(environ)
+        output = blog_post.render_main(environ)
     else:
-    	output = '404 Error'
+        output = '404 Error'
 
     return output
 
