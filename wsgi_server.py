@@ -1,38 +1,20 @@
-import view
-#execfile('configuration.py')
+import posts
+import kenya
 
-def blog_wsgi_app(environ, start_response):
-    status = '200 OK' # HTTP Status
-    headers = [('Content-type', 'text/html')] # HTTP Headers
-    start_response(status, headers)
+route_dict = {
+    '^/create$' : posts.new_post,
+    '^/display_post_links$' : posts.display_post_links,
+    '^/$' : lambda env: kenya.render_static_file('index.html'),
+    '^.*/id/(.*)$' : posts.display_post,
+    }
 
-    path = environ['PATH_INFO']
-    #output = getOutput(URL_routing[path])
+def fourohfour(env):
+    return '404 error'
 
-    if path == '/create':
-        output = view.new_post(environ)
-    elif path == '/display_post_links':
-        #method = URL_routing[path]
-        #output = view.method
-        output = view.display_post_links()
-    elif path.find('/id/')!=-1:
-        parsed_path = path.split("/")
-
-        #try:
-        post_id = int(parsed_path[2]) #obtain ID for clicked post, should be second item of path. if no error is thrown then it can be converted to an int and is therefore a string.
-        output = view.display_post(str(post_id))
-        #except(ValueError):
-            #output = '404 Error'
-    elif path == '/':
-        output = view.render_main(environ)
-    else:
-        output = '404 Error'
-
-    return output
-
+kenya_wsgi_app = kenya.Router(route_dict, fourohfour_function=fourohfour)
 
 from wsgiref.simple_server import make_server
-httpd = make_server('', 8080, blog_wsgi_app)
+httpd = make_server('', 8080, kenya_wsgi_app)
 print "Serving on port 8080..."
 
 # Serve until process is killed

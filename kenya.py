@@ -21,7 +21,37 @@ import os
 import csv
 import urlparse
 
-fourohfour = '<html><body>Cannot find that file<body><html>'
+
+class Router(object):
+    def __init__(self, route_dict, fourohfour_function):
+        """Initialized with a dictionariy of paths that map to functions
+
+        Each function takes one argument - the environment -
+        plus one additional argument for each capture group
+        in a the regex"""
+        self.route_dict = route_dict
+        self.fourohfour_function = fourohfour_function
+    def route(self, environ):
+        path = environ['PATH_INFO']
+        print 'Received request for', path
+        for match_path, func in self.route_dict.iteritems():
+            m = re.match(match_path, path)
+            if m:
+                print 'matched ', match_path,
+                if m.groups():
+                    print 'also got captures these args from path:'
+                    print m.groups
+                args = (environ,) + m.groups()
+                return func(*args)
+        else:
+            print 'matched nothing'
+            return self.fourohfour_function(environ)
+
+    def __call__(self, environ, start_response):
+        status = '200 OK' # HTTP Status
+        headers = [('Content-type', 'text/html')] # HTTP Headers
+        start_response(status, headers)
+        return self.route(environ)
 
 def render(template, **kwargs):
 
@@ -43,7 +73,7 @@ def render_static_file(name):
     """renders either a static file or an error page if file not found"""
     filename = os.path.join('static',name)
     if not os.path.exists(filename):
-        return fourohfour
+        return '<html><body>Cannot find that file<body><html>'
     with open(filename, 'r') as f:
         read_data = f.read()
     return read_data

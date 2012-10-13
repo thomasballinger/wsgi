@@ -1,13 +1,10 @@
 import json
-from kenya import render, render_static_file, get_post_qs, save_to_psuedo_db, \
+from kenya import render, get_post_qs, save_to_psuedo_db, \
         load_from_psuedo_db
 
 default_header = 'This is the default header.'
 default_content = 'This is the content. Currently it\'s coming from the standard input.'
 template_view = 'default_view.tpl'
-
-def render_main(environ):
-    return render_static_file('index.html')
 
 def new_post(environ):
     """Stores POST data in db"""
@@ -21,7 +18,7 @@ def new_post(environ):
     response = "Post Saved!"
     return response
 
-def display_post(post_id):
+def display_post(environ, post_id):
     #select id, name, content, template_view from database
     template_view = 'blog_post_view.tpl'
     _, db_title, db_content = load_from_psuedo_db('blog_entries', row_id=int(post_id))
@@ -30,7 +27,7 @@ def display_post(post_id):
     post = render(template_view, header=db_title, content=db_content)
     return post
 
-def display_post_links():
+def display_post_links(environ):
     #select all of the posts within database and display them
     db = 'blog_entries'
     posts = load_from_psuedo_db(db, all_rows=True)
