@@ -1,101 +1,93 @@
 import csv
-import string
 import json
 import urlparse
 
+header = 'This is the default header.'
+content = 'This is the content. Currently it\'s coming from the standard input.'
+template_view = 'default_view.tpl'
+db_counter = 1
+
+def render_main(environ):
+    with open('index.html', 'r') as f:
+        read_data = f.read()
+
+    return read_data
+
 def new_post(environ):
-    v = View()
-    v.new_post(environ)
-    
-class View:
-    header = 'This is the default header.'
-    content = 'This is the content. Currently it\'s coming from the standard input.'
-    template_view = 'default_view.tpl'
-    db_counter = 1
+    """Stores POST data in db"""
+    global db_counter
+
+    try:
+        request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+    except (ValueError):
+        request_body_size = 0
+
+    request_body = environ['wsgi.input'].read(request_body_size) #obtain form input
+
+    d = urlparse.parse_qs(request_body)
+
+    name = d.get('name')[0]
+    body = d.get('body')[0]
 
 
-    def render_main(self, environ):
-        with open('index.html', 'r') as f:
-            read_data = f.read()
+    #TODO:traverse "d" for parsed input and append view_attributes
+    view_attributes = [db_counter, name, body]
 
-        return read_data
+    #write information to psuedo database
+    with open('database/pseudo_database.csv', 'ab') as f:
+        writer = csv.writer(f)
+        writer.writerow(view_attributes)
 
-    def new_post(self, environ):
-        self.view_attributes = []
+    db_counter+=1
 
-        try:
-            request_body_size = int(environ.get('CONTENT_LENGTH', 0))
-        except (ValueError):
-            request_body_size = 0
+    response = "Post Saved!"
+    return response
 
-        request_body = environ['wsgi.input'].read(request_body_size) #obtain form input
+def render(template, **kwargs):
 
-        d = urlparse.parse_qs(request_body)
+    template = 'tmp/' + template
+    with open(template, 'r') as f:
+        read_data = f.read()
 
-        name = d.get('name')[0]
-        body = d.get('body')[0]
+    read_data = read_data.replace("'+header+'", kwargs['header'])
+    read_data = read_data.replace("'+content+'", kwargs['content'])
 
+    return read_data
 
-        #TODO:traverse "d" for parsed input and append view_attributes
-        self.view_attributes.append(View.db_counter)
-        self.view_attributes.append(name)
-        self.view_attributes.append(body)
+def display_post(post_id):
+    #select id, name, content, template_view from database
+    template = 'database/pseudo_database.csv'
 
-        #write information to psuedo database
-        with open('database/pseudo_database.csv', 'ab') as f:
-            writer = csv.writer(f)
-            writer.writerow(self.view_attributes)
-        
-        View.db_counter+=1
+    with open(template, 'rb') as f:
+        reader = csv.reader(f)
 
-        response = "Post Saved!"
-        return response
+        for row in reader:
+            if row[0] == post_id: #first element/item in each row is the id
+                header = row[1]#retrieved header, basically name of post
+                content = row[2] #retrieved content
 
-    def render(self, template):
+    template_view = 'blog_post_view.tpl' #retrieved template view #TODO: there should be some function to lookup what type of template should be used
+    post = render(template_view, header=header, content=content) #this should pass in a default argument of 'default_view.tpl'
 
-        template = 'tmp/' + template
-        with open(template, 'r') as f:
-            read_data = f.read()
+    return post
 
-        read_data = read_data.replace("'+header+'", self.header)
-        read_data = read_data.replace("'+content+'", self.content)
-        
-        return read_data
+def display_post_links():
+    posts = []
+    #select all of the posts within database and display them
+    template = 'database/pseudo_database.csv'
 
-    def display_post(self, post_id):
-        #select id, name, content, template_view from database
-        template = 'database/pseudo_database.csv'
-       
+    try:
+
         with open(template, 'rb') as f:
             reader = csv.reader(f)
 
             for row in reader:
-                if row[0] == post_id: #first element/item in each row is the id
-                    self.header = row[1]#retrieved header, basically name of post
-                    self.content = row[2] #retrieved content
+                posts.append(row)
 
+            response = json.dumps(posts)
 
-        self.template_view = 'blog_post_view.tpl' #retrieved template view #TODO: there should be some function to lookup what type of template should be used
-        post = self.render(self.template_view) #this should pass in a default argument of 'default_view.tpl'
+    except(IOError):
+        response = "0"#no posts available
 
-        return post
+    return response
 
-    def display_post_links(self):
-        posts = []
-        #select all of the posts within database and display them
-        template = 'database/pseudo_database.csv'
-
-        try:
-
-            with open(template, 'rb') as f:
-                reader = csv.reader(f)
-
-                for row in reader:
-                    posts.append(row)
-
-                response = json.dumps(posts)
-            
-        except(IOError):
-            response = "0"#no posts available
-
-        return response
